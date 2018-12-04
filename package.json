@@ -1,0 +1,30 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "target/index.js",
+  "author": "Hoan Phung <hoanphung.ptso1@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node .",
+    "compile": "tsc -w",
+    "postinstall": "tsc -p ."
+  },
+  "dependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/jsonwebtoken": "^8.3.0",
+    "@types/koa": "^2.0.47",
+    "@types/koa-bodyparser": "^4.2.1",
+    "@types/koa-multer": "^1.0.0",
+    "@types/koa-router": "^7.0.35",
+    "bcrypt": "^3.0.2",
+    "jsonwebtoken": "^8.4.0",
+    "koa": "^2.6.2",
+    "koa-bodyparser": "^4.2.1",
+    "koa-multer": "^1.0.2",
+    "koa-router": "^7.4.0",
+    "pg": "^7.7.1",
+    "routing-controllers": "^0.7.7",
+    "typeorm": "^0.2.9",
+    "typescript": "^3.2.1"
+  }
+}
