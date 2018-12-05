@@ -12,7 +12,19 @@ export default class TicketsController {
 
        return { tickets }
     }
-    //get a tickets
+    //get all tickets of an event
+    @Get('events/:event_id/tickets')
+    async getTickets(
+        @Param('event_id') event_id: number
+    ) {
+       const event = await Event.findOne(event_id)
+       if (!event) throw new NotFoundError('This event does not exist')
+
+       const tickets = await Ticket.find({where: {event_id: event_id}})
+
+       return { tickets }
+    }
+    //get a ticket
     @Get('/tickets/:id')
     async getTicket(
         @Param('id') id: number

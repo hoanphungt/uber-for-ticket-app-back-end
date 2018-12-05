@@ -11,7 +11,7 @@ export default class Ticket extends BaseEntity {
     @PrimaryGeneratedColumn()
     id?: number
 
-    @Column('text', { nullable: false })
+    @Column('integer', { nullable: false })
     price: number
 
     @Column('text', { nullable: false })
