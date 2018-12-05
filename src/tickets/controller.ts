@@ -5,7 +5,7 @@ import Event from '../events/entity';
 
 @Controller()
 export default class TicketsController {
-    //get all tickets
+    //get all tickets of all events
     @Get('/tickets')
     async allTickets() {
        const tickets = await Ticket.find()
@@ -13,14 +13,14 @@ export default class TicketsController {
        return { tickets }
     }
     //get all tickets of an event
-    @Get('events/:event_id/tickets')
+    @Get('/events/:event_id/tickets')
     async getTickets(
         @Param('event_id') event_id: number
     ) {
        const event = await Event.findOne(event_id)
        if (!event) throw new NotFoundError('This event does not exist')
 
-       const tickets = await Ticket.find({where: {event_id: event_id}})
+       const tickets = await Ticket.find({where: {event: event}})
 
        return { tickets }
     }
