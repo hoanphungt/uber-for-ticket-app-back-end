@@ -7,6 +7,7 @@ import LoginController from './logins/controller';
 import TicketsController from './tickets/controller';
 import { verify } from './jwt';
 import User from './users/entity';
+import CommentsController from './comments/controller';
 
 const port = process.env.PORT || 4000
 
@@ -16,6 +17,7 @@ const app = createKoaServer({
     EventsController,
     UsersController,
     TicketsController,
+    CommentsController,
     LoginController
   ],
   authorizationChecker: (action: Action) => {

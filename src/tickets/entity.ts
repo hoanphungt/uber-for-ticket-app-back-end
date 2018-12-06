@@ -11,7 +11,7 @@ export default class Ticket extends BaseEntity {
     @PrimaryGeneratedColumn()
     id?: number
 
-    @Column('integer', { nullable: false })
+    @Column('text', { nullable: false })
     price: number
 
     @Column('text', { nullable: false })
@@ -21,7 +21,10 @@ export default class Ticket extends BaseEntity {
     picture: string
 
     @Column('text', { nullable: true })
-    fraudPercentage: number
+    risk: number
+
+    @Column()
+    createdDate: Date = new Date()
 
     @ManyToOne(_ => Event, event => event.tickets, {eager: true})
     event: Event
