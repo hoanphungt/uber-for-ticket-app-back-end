@@ -39,7 +39,6 @@ export default class CommentsController {
         @Body() comment: Comment,
         @CurrentUser() user: User,
         @Param('ticket_id') ticket_id: number
-
     ) {
         const ticket = await Ticket.findOne(ticket_id)
         if (!ticket) throw new NotFoundError('This ticket does not exist')

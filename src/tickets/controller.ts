@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Param, Post, HttpCode, Put, NotFoundError, Authorized, Delete, CurrentUser } from 'routing-controllers'
+import { Controller, Get, Body, Param, Post, HttpCode, Put, NotFoundError, Authorized, Delete, CurrentUser, BadRequestError } from 'routing-controllers'
 import Ticket from './entity';
 import User from '../users/entity';
 import Event from '../events/entity';
@@ -63,14 +63,16 @@ export default class TicketsController {
         //calculate the total & average price of all tickets
         const totalPrice = ticketPriceArray.reduce((a, b) => a + b, 0)
         const averagePrice = totalPrice / ticketPriceArray.length
-        //if ticket price is cheaper than the average price then add x% to the risk
+
         if (ticketsForThisEvent.length === 0) {
-            return
+            ticket.risk = ticket.risk
         } else {
+            //if ticket price is cheaper than the average price then add x% to the risk
             if ((ticket.price - averagePrice) <= 0) {
                 const x = (averagePrice - ticket.price) / averagePrice * 100
                 ticket.risk += x
             } else {
+                //if ticket price is higher than the average price then reduce risk up to 10%
                 const x = (ticket.price - averagePrice) / averagePrice * 100
                 if (x <= 10) {
                     ticket.risk -= x
@@ -106,13 +108,52 @@ export default class TicketsController {
     @Put('/tickets/:id')
     async updateTicket(
         @Param('id') id: number,
-        @Body() update: Partial<Ticket>
+        @CurrentUser() currentUser: User,
+        @Body() updatedTicket: Partial<Ticket>
     ) {
         const ticket = await Ticket.findOne(id)
+        const tickets = await Ticket.find()
 
         if (!ticket) throw new NotFoundError('Cannot find the ticket')
+        if (ticket.user.id !== currentUser.id) throw new BadRequestError('You are not the author of this ticket')
 
-        return Ticket.merge(ticket, update).save()
+        // *** FRAUD RISK ALGORITHM ***
+        //when update the price of the ticket, calculate the fraud risk again based on the new price!!!
+        //if the ticket price is not changed then keep the risk as the same
+        if (updatedTicket.price === ticket.price) {
+            updatedTicket.risk = ticket.risk
+        } else {
+            //if the ticket price is changed then calculate the risk again:
+            if (updatedTicket.price) {
+                updatedTicket.risk = ticket.risk
+                //risk assessment based on the price of the ticket
+                //map through all the tickets to find tickets available for this event
+                const ticketsForThisEvent = tickets.filter(a => a.event.id === ticket.event.id)
+                const ticketPriceArray = ticketsForThisEvent.map(ticket => ticket.price)
+                //calculate the total & average price of all tickets
+                const totalPrice = ticketPriceArray.reduce((a, b) => a + b, 0)
+                const averagePrice = totalPrice / ticketPriceArray.length
+                //if updated ticket price is cheaper than the average price then add x% to the risk
+                if ((updatedTicket.price - averagePrice) <= 0) {
+                    const x = (averagePrice - updatedTicket.price) / averagePrice * 100
+                    updatedTicket.risk += x
+                } else {
+                    //if updated ticket price is higher than the average price then reduce risk up to 10%
+                    const x = (updatedTicket.price - averagePrice) / averagePrice * 100
+                    if (x <= 10) {
+                        updatedTicket.risk -= x
+                    } else {
+                        updatedTicket.risk -= 10
+                    }
+                }
+                //minimal risk is 5% and maximum risk is 95%
+                if (updatedTicket.risk < 5) updatedTicket.risk = 5
+                if (updatedTicket.risk > 95) updatedTicket.risk = 95
+            }
+        }
+        // *** END OF THE FRAUD RISK ALGORITHM ***
+
+        return Ticket.merge(ticket, updatedTicket).save()
     }
     //delete a ticket
     @Authorized()
