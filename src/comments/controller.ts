@@ -50,7 +50,7 @@ export default class CommentsController {
         //check if more than 3 comments are created for this ticket then add 5% risk
         const comments = await Comment.find()
         const numberOfCommentOfTheTicket = comments.filter(comment => comment.ticket.id === ticket.id).length
-        if (numberOfCommentOfTheTicket >= 3) ticket.risk = Math.round(ticket.risk) + 5
+        if (numberOfCommentOfTheTicket >= 3) ticket.risk = ticket.risk + 5
 
         //minimal risk is 5% and maximum risk is 95%
         if (ticket.risk < 5) ticket.risk = 5

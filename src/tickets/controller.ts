@@ -60,7 +60,7 @@ export default class TicketsController {
         const ticketsForThisEvent = tickets.filter(ticket => ticket.event.id === event.id)
         const ticketPriceArray = ticketsForThisEvent.map(ticket => ticket.price)
         //calculate the total & average price of all tickets
-        const totalPrice = ticketPriceArray.reduce((a, b) => Math.round(a) + Math.round(b), 0)
+        const totalPrice = ticketPriceArray.reduce((a, b) => a + b, 0)
         const averagePrice = totalPrice / ticketPriceArray.length
 
         if (ticketsForThisEvent.length === 0) {
@@ -124,21 +124,21 @@ export default class TicketsController {
         } else {
             //if the ticket price is changed then calculate the risk again:
             if (updatedTicket.price) {
-                updatedTicket.risk = Math.round(ticket.risk)
+                updatedTicket.risk = ticket.risk
                 //risk assessment based on the price of the ticket
                 //map through all the tickets to find tickets available for this event
                 const ticketsForThisEvent = tickets.filter(a => a.event.id === ticket.event.id)
                 const ticketPriceArray = ticketsForThisEvent.map(ticket => ticket.price)
                 //calculate the total & average price of all tickets
-                const totalPrice = ticketPriceArray.reduce((a, b) => Math.round(a) + Math.round(b), 0)
+                const totalPrice = ticketPriceArray.reduce((a, b) => a + b, 0)
                 const averagePrice = totalPrice / ticketPriceArray.length
                 //if updated ticket price is cheaper than the average price then add x% to the risk
                 if ((updatedTicket.price - averagePrice) <= 0) {
-                    const x = Math.round((averagePrice - updatedTicket.price) / averagePrice * 100)
+                    const x = (averagePrice - updatedTicket.price) / averagePrice * 100
                     updatedTicket.risk += x
                 } else {
                     //if updated ticket price is higher than the average price then reduce risk up to 10%
-                    const x = Math.round((updatedTicket.price - averagePrice) / averagePrice * 100)
+                    const x = (updatedTicket.price - averagePrice) / averagePrice * 100
                     if (x <= 10) {
                         updatedTicket.risk -= x
                     } else {
