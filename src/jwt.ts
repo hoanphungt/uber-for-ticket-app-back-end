@@ -12,3 +12,4 @@ export const sign = (data: JwtPayload) =>
 
 export const verify = (token: string): { data: JwtPayload } =>
     jwt.verify(token, secret) as { data: JwtPayload }
+    
